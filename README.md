@@ -14,6 +14,8 @@
 
 A Flutter plugin that allows you to add an inline webview, to use an headless webview, and to open an in-app browser window.
 
+## WARNING: THIS VERSION DOES NOT CONTAIN THE CODE FOR IOS. YOU CAN ONLY USE IT FOR ANDROID.
+
 ## Articles/Resources
 
 - [InAppWebView: The Real Power of WebViews in Flutter](https://medium.com/flutter-community/inappwebview-the-real-power-of-webviews-in-flutter-c6d52374209d?source=friends_link&sk=cb74487219bcd85e610a670ee0b447d0)
@@ -27,7 +29,7 @@ A Flutter plugin that allows you to add an inline webview, to use an headless we
 - Android: `minSdkVersion 17` and add support for `androidx` (see [AndroidX Migration](https://flutter.dev/docs/development/androidx-migration) to migrate an existing app)
 - iOS: `--ios-language swift`, Xcode version `>= 11`
 
-### IMPORTANT Note for Android and iOS
+### IMPORTANT Note for Android
 
 If you're running an application and need to access the binary messenger before `runApp()` has been called
 (for example, during plugin initialization), then you need to explicitly call the `WidgetsFlutterBinding.ensureInitialized()` first.
@@ -73,68 +75,6 @@ Also, note that to use the `InAppWebView` widget on Android, it requires **Andro
 **Support HTTP request**: Starting with Android 9 (API level 28), cleartext support is disabled by default:
 - Check the official [Network security configuration - "Opt out of cleartext traffic"](https://developer.android.com/training/articles/security-config#CleartextTrafficPermitted) section.
 - Also, check this StackOverflow issue answer: [Cleartext HTTP traffic not permitted](https://stackoverflow.com/a/50834600/4637638).
-
-### IMPORTANT Note for iOS
-
-If you are starting a new fresh app, you need to create the Flutter App with `flutter create --androidx -i swift`
-(see [flutter/flutter#13422 (comment)](https://github.com/flutter/flutter/issues/13422#issuecomment-392133780)), otherwise, you will get this message:
-```
-=== BUILD TARGET flutter_inappwebview OF PROJECT Pods WITH CONFIGURATION Debug ===
-The “Swift Language Version” (SWIFT_VERSION) build setting must be set to a supported value for targets which use Swift. Supported values are: 3.0, 4.0, 4.2, 5.0. This setting can be set in the build settings editor.
-```
-
-If you still have this problem, try to edit iOS `Podfile` like this (see [#15](https://github.com/pichillilorenzo/flutter_inappwebview/issues/15)):
-```
-target 'Runner' do
-  use_frameworks!  # required by simple_permission
-  ...
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['SWIFT_VERSION'] = '5.0'  # required by simple_permission
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-    end
-  end
-end
-```
-
-Instead, if you have already a non-swift project, you can check this issue to solve the problem: [Friction adding swift plugin to objective-c project](https://github.com/flutter/flutter/issues/16049).
-
-**Support HTTP request**: you need to disable Apple Transport Security (ATS) feature. There're two options:
-1. Disable ATS for a specific domain only ([Official wiki](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsexceptiondomains)): (add following codes to your `Info.plist` file)
-```xml
-<key>NSAppTransportSecurity</key>
-<dict>
-  <key>NSExceptionDomains</key>
-  <dict>
-    <key>www.yourserver.com</key>
-    <dict>
-      <!-- add this key to enable subdomains such as sub.yourserver.com -->
-      <key>NSIncludesSubdomains</key>
-      <true/>
-      <!-- add this key to allow standard HTTP requests, thus negating the ATS -->
-      <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-      <true/>
-      <!-- add this key to specify the minimum TLS version to accept -->
-      <key>NSTemporaryExceptionMinimumTLSVersion</key>
-      <string>TLSv1.1</string>
-    </dict>
-  </dict>
-</dict>
-```
-2. Completely disable ATS ([Official wiki](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsallowsarbitraryloads)): (add following codes to your `Info.plist` file)
-```xml
-<key>NSAppTransportSecurity</key>
-<dict>
-    <key>NSAllowsArbitraryLoads</key><true/>
-</dict>
-```
-
-Other useful `Info.plist` properties are:
-* `NSAllowsLocalNetworking`: A Boolean value indicating whether to allow loading of local resources ([Official wiki](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsallowslocalnetworking));
-* `NSAllowsArbitraryLoadsInWebContent`: A Boolean value indicating whether all App Transport Security restrictions are disabled for requests made from web views ([Official wiki](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsallowsarbitraryloadsinwebcontent)).
 
 ### How to enable the usage of camera for HTML inputs such as `<input type="file" accept="image/*" capture>`
 
